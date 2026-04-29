@@ -1,0 +1,24 @@
+{
+  "name": "hono-jsx",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -c \"#32a06f,#bd34fe\" \"pnpm dev:server\" \"pnpm dev:client\" --names hono,vite",
+    "dev:server": "tsx watch src/index.ts",
+    "dev:client": "vite --host 127.0.0.1 --port 13722 --strictPort",
+    "build": "tsc",
+    "start": "concurrently -c \"#32a06f,#bd34fe\" \"node dist/index.js\" \"pnpm dev:client\" --names hono,vite"
+  },
+  "dependencies": {
+    "@hono/inertia": "^0.2.0",
+    "@hono/node-server": "^1.19.14",
+    "@inertiajs/hono-jsx": "workspace:*",
+    "hono": "^4.12.15"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "concurrently": "^9.2.1",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3",
+    "vite": "^8.0.10"
+  }
+}

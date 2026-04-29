@@ -6,7 +6,7 @@ declare const process: {
   env: {
     BROWSER?: 'chromium' | 'webkit' | 'firefox'
     CI?: boolean
-    PACKAGE?: 'vue3' | 'react' | 'svelte' | 'hono-jsx-dom'
+    PACKAGE?: 'vue3' | 'react' | 'svelte' | 'hono-jsx'
     SSR?: 'true'
   }
   platform: string
@@ -17,13 +17,13 @@ const runsInCI = !!process.env.CI
 const runsOnMac = process.platform === 'darwin'
 const runsOnWindows = process.platform === 'win32'
 const ssrEnabled = process.env.SSR === 'true'
-const ssrWebServerEnabled = ssrEnabled && adapter !== 'hono-jsx-dom'
+const ssrWebServerEnabled = ssrEnabled && adapter !== 'hono-jsx'
 
-const adapterPorts = { vue3: 13715, react: 13716, svelte: 13717, 'hono-jsx-dom': 13721 }
-const ssrAutoPorts = { vue3: 13718, react: 13719, svelte: 13720, 'hono-jsx-dom': 13722 }
+const adapterPorts = { vue3: 13715, react: 13716, svelte: 13717, 'hono-jsx': 13721 }
+const ssrAutoPorts = { vue3: 13718, react: 13719, svelte: 13720, 'hono-jsx': 13722 }
 const url = `http://localhost:${adapterPorts[adapter]}`
 
-const adapters = ['react', 'svelte', 'vue3', 'hono-jsx-dom']
+const adapters = ['react', 'svelte', 'vue3', 'hono-jsx']
 
 if (!adapters.includes(adapter)) {
   throw new Error(`Invalid adapter package "${adapter}". Expected one of: ${adapters.join(', ')}.`)
@@ -92,8 +92,8 @@ const webServerConfig = ssrWebServerEnabled
 export default defineConfig({
   testDir: './tests',
   /* Only run SSR tests when SSR=true, otherwise exclude them */
-  ...(adapter === 'hono-jsx-dom'
-    ? { testMatch: 'hono-jsx-dom.spec.ts' }
+  ...(adapter === 'hono-jsx'
+    ? { testMatch: 'hono-jsx.spec.ts' }
     : ssrEnabled
       ? { testMatch: 'ssr.spec.ts' }
       : { testIgnore: 'ssr.spec.ts' }),

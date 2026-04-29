@@ -1,0 +1,22 @@
+{
+  "include": ["app.tsx", "Pages/**/*.tsx"],
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@inertiajs/hono-jsx": ["../src/index.ts"],
+      "@inertiajs/core": ["../../core/src/index.ts"]
+    },
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx/dom",
+    "types": ["node", "vite/client"],
+    "skipLibCheck": true,
+    "noImplicitThis": false,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true
+  }
+}

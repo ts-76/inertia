@@ -67,7 +67,7 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2(@types/node@24.10.13)(vite@8.0.10(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.3))
 
-  packages/hono-jsx-dom:
+  packages/hono-jsx:
     dependencies:
       '@inertiajs/core':
         specifier: workspace:*
@@ -95,12 +95,12 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  packages/hono-jsx-dom/test-app:
+  packages/hono-jsx/test-app:
     dependencies:
       '@inertiajs/core':
         specifier: workspace:*
         version: link:../../core
-      '@inertiajs/hono-jsx-dom':
+      '@inertiajs/hono-jsx':
         specifier: workspace:*
         version: link:..
       hono:
@@ -439,7 +439,7 @@ importers:
         specifier: ^3.2.5
         version: 3.2.5(typescript@5.9.3)
 
-  playgrounds/hono-jsx-dom:
+  playgrounds/hono-jsx:
     dependencies:
       '@hono/inertia':
         specifier: ^0.2.0
@@ -447,9 +447,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.19.14
         version: 1.19.14(hono@4.12.15)
-      '@inertiajs/hono-jsx-dom':
+      '@inertiajs/hono-jsx':
         specifier: workspace:*
-        version: link:../../packages/hono-jsx-dom
+        version: link:../../packages/hono-jsx
       hono:
         specifier: ^4.12.15
         version: 4.12.15

@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 const upload = multer()
 
-const adapters = ['react', 'svelte', 'vue3', 'hono-jsx-dom']
+const adapters = ['react', 'svelte', 'vue3', 'hono-jsx']
 
 if (!adapters.includes(inertia.package)) {
   throw new Error(`Invalid adapter package "${inertia.package}". Expected one of: ${adapters.join(', ')}.`)
@@ -3674,7 +3674,7 @@ const adapterPorts = {
   vue3: 13715,
   react: 13716,
   svelte: 13717,
-  'hono-jsx-dom': 13721,
+  'hono-jsx': 13721,
 }
 
 showServerStatus(inertia.package, adapterPorts[inertia.package])
