@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 const upload = multer()
 
-const adapters = ['react', 'svelte', 'vue3', 'hono-jsx-dom']
+const adapters = ['react', 'svelte', 'vue3']
 
 if (!adapters.includes(inertia.package)) {
   throw new Error(`Invalid adapter package "${inertia.package}". Expected one of: ${adapters.join(', ')}.`)
@@ -214,18 +214,14 @@ app.get('/plugin/*enabled', (req, res) =>
 /**
  * Our actual 'app' routes
  */
-app.get('/', (req, res) => {
-  const partialData = (req.headers['x-inertia-partial-data'] || '').split(',')
-  const wantsDeferredExample = partialData.includes('deferredExample')
-
-  return inertia.render(req, res, {
+app.get('/', (req, res) =>
+  inertia.render(req, res, {
     component: 'Home',
     props: {
       example: 'FooBar',
-      ...(wantsDeferredExample ? { deferredExample: 'Loaded FooBar' } : {}),
     },
-  })
-})
+  }),
+)
 
 app.get('/article', (req, res) =>
   inertia.render(req, res, {
@@ -257,143 +253,6 @@ app.get('/links/partial-reloads', (req, res) =>
       foo: Number.parseInt(req.query.foo || 0) + 1,
       bar: (props) => props.foo + 1,
       baz: (props) => props.foo + 2,
-    },
-  }),
-)
-app.get('/hono/partial', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/Partial',
-    props: {
-      headers: req.headers,
-      message: `Message ${Number.parseInt(req.query.count || 0) + 1}`,
-      other: `Other ${Number.parseInt(req.query.count || 0) + 1}`,
-    },
-  }),
-)
-app.get('/hono/target', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/Target',
-    props: {
-      message: 'Hello from the target page',
-    },
-  }),
-)
-app.get('/hono/use-page', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/UsePage',
-    props: {
-      name: 'Hono User',
-    },
-  }),
-)
-app.get('/hono/form/advanced', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/FormAdvanced',
-    props: {
-      submitted: req.query.submitted || null,
-      uploadName: null,
-    },
-  }),
-)
-app.post('/hono/form/advanced-success', upload.any(), (req, res) =>
-  setTimeout(
-    () =>
-      inertia.render(req, res, {
-        component: 'Hono/FormAdvanced',
-        props: {
-          submitted: req.body || {},
-          uploadName: req.files?.[0]?.originalname || null,
-        },
-      }),
-    1000,
-  ),
-)
-app.post('/hono/form/advanced-error', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/FormAdvanced',
-    props: {
-      submitted: null,
-      uploadName: null,
-      errors: {
-        advanced: {
-          name: 'Advanced name is required.',
-        },
-      },
-    },
-  }),
-)
-app.get('/hono/form/fields', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/FormFields',
-    props: {
-      submitted: null,
-    },
-  }),
-)
-app.post('/hono/form/fields-success', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/FormFields',
-    props: {
-      submitted: req.body || {},
-    },
-  }),
-)
-app.get('/hono/head-keys', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/HeadKeys',
-  }),
-)
-app.get('/hono/use-form/cancel', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/UseFormCancel',
-  }),
-)
-app.post('/hono/use-form/cancel-slow', (req, res) =>
-  setTimeout(
-    () =>
-      inertia.render(req, res, {
-        component: 'Hono/UseFormCancel',
-      }),
-    1000,
-  ),
-)
-app.get('/hono/layout-props', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Hono/LayoutProps',
-    props: {
-      preserve: req.query.preserve === '1',
-    },
-  }),
-)
-let honoVisitHelperPollCount = 0
-
-app.get('/hono/visit-helpers', (req, res) => {
-  const partialData = req.headers['x-inertia-partial-data'] || ''
-
-  if (partialData.includes('pollCount')) {
-    honoVisitHelperPollCount += 1
-  } else if (!req.headers['x-inertia']) {
-    honoVisitHelperPollCount = 0
-  }
-
-  return inertia.render(req, res, {
-    component: 'Hono/VisitHelpers',
-    props: {
-      visibleValue: partialData.includes('visibleValue') ? 'Visible loaded' : undefined,
-      pollCount: honoVisitHelperPollCount,
-    },
-  })
-})
-app.post('/hono/form/errors', (req, res) =>
-  inertia.render(req, res, {
-    component: 'Home',
-    props: {
-      example: 'FooBar',
-      errors: {
-        honoForm: {
-          formName: 'The formName field is required.',
-        },
-      },
     },
   }),
 )
@@ -3674,7 +3533,6 @@ const adapterPorts = {
   vue3: 13715,
   react: 13716,
   svelte: 13717,
-  'hono-jsx-dom': 13721,
 }
 
 showServerStatus(inertia.package, adapterPorts[inertia.package])

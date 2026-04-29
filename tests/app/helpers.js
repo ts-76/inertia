@@ -83,8 +83,7 @@ module.exports = {
         .readFileSync(path.resolve(__dirname, '../../packages/', package, 'test-app/dist/index.html'))
         .toString()
         .replace('{{ headAttribute }}', 'data-inertia')
-        .replace("'{{ placeholder }}'", JSON.stringify(data))
-        .replace('{{ placeholder }}', JSON.stringify(data).replace(/\//g, '\\/')),
+        .replace("'{{ placeholder }}'", JSON.stringify(data)),
     )
   },
   renderWithPlainTitle: (req, res, data) => {

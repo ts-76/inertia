@@ -6,7 +6,7 @@ declare const process: {
   env: {
     BROWSER?: 'chromium' | 'webkit' | 'firefox'
     CI?: boolean
-    PACKAGE?: 'vue3' | 'react' | 'svelte' | 'hono-jsx-dom'
+    PACKAGE?: 'vue3' | 'react' | 'svelte'
     SSR?: 'true'
   }
   platform: string
@@ -15,15 +15,13 @@ declare const process: {
 const adapter = process.env.PACKAGE || 'vue3'
 const runsInCI = !!process.env.CI
 const runsOnMac = process.platform === 'darwin'
-const runsOnWindows = process.platform === 'win32'
 const ssrEnabled = process.env.SSR === 'true'
-const ssrWebServerEnabled = ssrEnabled && adapter !== 'hono-jsx-dom'
 
-const adapterPorts = { vue3: 13715, react: 13716, svelte: 13717, 'hono-jsx-dom': 13721 }
-const ssrAutoPorts = { vue3: 13718, react: 13719, svelte: 13720, 'hono-jsx-dom': 13722 }
+const adapterPorts = { vue3: 13715, react: 13716, svelte: 13717 }
+const ssrAutoPorts = { vue3: 13718, react: 13719, svelte: 13720 }
 const url = `http://localhost:${adapterPorts[adapter]}`
 
-const adapters = ['react', 'svelte', 'vue3', 'hono-jsx-dom']
+const adapters = ['react', 'svelte', 'vue3']
 
 if (!adapters.includes(adapter)) {
   throw new Error(`Invalid adapter package "${adapter}". Expected one of: ${adapters.join(', ')}.`)
@@ -56,16 +54,13 @@ const projects = [
  * See https://playwright.dev/docs/test-configuration.
  */
 // Build commands
-const testAppFilter = runsOnWindows ? `./packages/${adapter}/test-app` : `'./packages/${adapter}/test-app'`
-const buildCommand = `pnpm -r --filter ${testAppFilter} build`
-const buildSSRCommand = `pnpm -r --filter ${testAppFilter} build:ssr`
-const buildSSRAutoCommand = `pnpm -r --filter ${testAppFilter} build:ssr-auto`
-const serveCommand = runsOnWindows
-  ? `cd tests/app && set PACKAGE=${adapter}&& pnpm serve`
-  : `cd tests/app && PACKAGE=${adapter} pnpm serve`
+const buildCommand = `pnpm -r --filter './packages/${adapter}/test-app' build`
+const buildSSRCommand = `pnpm -r --filter './packages/${adapter}/test-app' build:ssr`
+const buildSSRAutoCommand = `pnpm -r --filter './packages/${adapter}/test-app' build:ssr-auto`
+const serveCommand = `cd tests/app && PACKAGE=${adapter} pnpm serve`
 
 // Web server configuration based on SSR mode
-const webServerConfig = ssrWebServerEnabled
+const webServerConfig = ssrEnabled
   ? [
       {
         command: `${buildCommand} && ${buildSSRCommand} && node packages/${adapter}/test-app/dist/ssr.js`,
@@ -92,11 +87,7 @@ const webServerConfig = ssrWebServerEnabled
 export default defineConfig({
   testDir: './tests',
   /* Only run SSR tests when SSR=true, otherwise exclude them */
-  ...(adapter === 'hono-jsx-dom'
-    ? { testMatch: 'hono-jsx-dom.spec.ts' }
-    : ssrEnabled
-      ? { testMatch: 'ssr.spec.ts' }
-      : { testIgnore: 'ssr.spec.ts' }),
+  ...(ssrEnabled ? { testMatch: 'ssr.spec.ts' } : { testIgnore: 'ssr.spec.ts' }),
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
