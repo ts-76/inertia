@@ -8,19 +8,33 @@ const firefoxIndex = args.indexOf('--firefox')
 
 // Replace --webkit or --firefox with --project <browser>
 if (webkitIndex !== -1) {
-  args.splice(webkitIndex, 1, '--project', 'webkit')
+  args.splice(webkitIndex, 1)
+  args.push('--project', 'webkit')
 } else if (firefoxIndex !== -1) {
-  args.splice(firefoxIndex, 1, '--project', 'firefox')
+  args.splice(firefoxIndex, 1)
+  args.push('--project', 'firefox')
 } else {
   // Default to chromium if no browser flag
-  args.unshift('--project', 'chromium')
+  args.push('--project', 'chromium')
 }
 
 // Run playwright with modified args
-const playwright = spawn('npx', ['playwright', 'test', ...args], {
-  env: process.env,
-  stdio: 'inherit',
-})
+const command = process.platform === 'win32' ? 'pnpm.cmd' : 'npx'
+const commandArgs =
+  process.platform === 'win32' ? ['exec', 'playwright', 'test', ...args] : ['playwright', 'test', ...args]
+const quote = (arg) => (/\s/.test(arg) ? `"${arg.replace(/"/g, '\\"')}"` : arg)
+
+const playwright =
+  process.platform === 'win32'
+    ? spawn([command, ...commandArgs].map(quote).join(' '), {
+        env: process.env,
+        stdio: 'inherit',
+        shell: true,
+      })
+    : spawn(command, commandArgs, {
+        env: process.env,
+        stdio: 'inherit',
+      })
 
 playwright.on('close', (code) => {
   process.exit(code)

@@ -1,0 +1,140 @@
+import { ReloadOptions, router } from '@inertiajs/core'
+import { get } from 'es-toolkit/compat'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'hono/jsx'
+import { createElement, type Child } from 'hono/jsx/dom'
+import type { JSX } from 'hono/jsx/dom/jsx-runtime'
+import usePage from './usePage'
+
+interface WhenVisibleSlotProps {
+  fetching: boolean
+}
+
+interface WhenVisibleProps {
+  children: Child | ((props: WhenVisibleSlotProps) => Child)
+  fallback: Child | (() => Child)
+  data?: string | string[]
+  params?: ReloadOptions
+  buffer?: number
+  as?: string
+  always?: boolean
+}
+
+const WhenVisible = ({ children, data, params, buffer, as, always, fallback }: WhenVisibleProps): JSX.Element | null => {
+  always = always ?? false
+  as = as ?? 'div'
+  fallback = fallback ?? null
+
+  const pageProps = usePage().props
+  const keys = useMemo(() => (data ? (Array.isArray(data) ? data : [data]) : []), [data])
+
+  const [loaded, setLoaded] = useState(() => keys.length > 0 && keys.every((key) => get(pageProps, key) !== undefined))
+  const [isFetching, setIsFetching] = useState(false)
+  const fetching = useRef<boolean>(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const observer = useRef<IntersectionObserver | null>(null)
+  const getReloadParamsRef = useRef<() => Partial<ReloadOptions>>(() => ({}))
+
+  useEffect(() => {
+    if (keys.length > 0) {
+      setLoaded(keys.every((key) => get(pageProps, key) !== undefined))
+    }
+  }, [pageProps, keys])
+
+  const getReloadParams = useCallback<() => Partial<ReloadOptions>>(() => {
+    const reloadParams: Partial<ReloadOptions> = { preserveErrors: true, ...params }
+
+    if (data) {
+      reloadParams.only = (Array.isArray(data) ? data : [data]) as string[]
+    }
+
+    return reloadParams
+  }, [params, data])
+
+  getReloadParamsRef.current = getReloadParams
+
+  const registerObserver = () => {
+    observer.current?.disconnect()
+
+    observer.current = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) {
+          return
+        }
+
+        if (fetching.current) {
+          return
+        }
+
+        if (!always && loaded) {
+          return
+        }
+
+        fetching.current = true
+        setIsFetching(true)
+
+        const reloadParams = getReloadParamsRef.current!()
+
+        router.reload({
+          ...reloadParams,
+          onStart: (e) => {
+            fetching.current = true
+            setIsFetching(true)
+            reloadParams.onStart?.(e)
+          },
+          onFinish: (e) => {
+            setLoaded(true)
+            fetching.current = false
+            setIsFetching(false)
+            reloadParams.onFinish?.(e)
+
+            if (!always) {
+              observer.current?.disconnect()
+            }
+          },
+        })
+      },
+      {
+        rootMargin: `${buffer || 0}px`,
+      },
+    )
+
+    observer.current.observe(ref.current!)
+  }
+
+  useEffect(() => {
+    if (!ref.current) {
+      return
+    }
+
+    if (loaded && !always) {
+      return
+    }
+
+    registerObserver()
+
+    return () => {
+      observer.current?.disconnect()
+    }
+  }, [always, loaded, buffer])
+
+  const resolveChildren = () => (typeof children === 'function' ? children({ fetching: isFetching }) : children)
+  const resolveFallback = () => (typeof fallback === 'function' ? fallback() : fallback)
+
+  if (always || !loaded) {
+    return createElement(
+      as,
+      {
+        props: null,
+        ref,
+      },
+      loaded ? resolveChildren() : resolveFallback(),
+    ) as unknown as JSX.Element
+  }
+
+  return loaded ? (resolveChildren() as JSX.Element) : null
+}
+
+WhenVisible.displayName = 'InertiaWhenVisible'
+
+export default WhenVisible
+

@@ -1,0 +1,66 @@
+{
+  "name": "@inertiajs/hono-jsx-dom",
+  "version": "3.0.3",
+  "license": "MIT",
+  "description": "The Hono JSX DOM adapter for Inertia.js",
+  "contributors": [
+    "Jonathan Reinink <jonathan@inertiajs.com>"
+  ],
+  "homepage": "https://inertiajs.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inertiajs/inertia.git",
+    "directory": "packages/hono-jsx-dom"
+  },
+  "bugs": {
+    "url": "https://github.com/inertiajs/inertia/issues"
+  },
+  "files": [
+    "dist",
+    "types"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./types/server.d.ts",
+      "import": "./dist/server.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "server": [
+        "types/server.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "pnpm clean && node build.js && tsc",
+    "build:with-deps": "node build.js --with-deps",
+    "clean": "node -e \"fs.rmSync('types', { recursive: true, force: true }); fs.rmSync('dist', { recursive: true, force: true })\"",
+    "dev": "pnpx concurrently -c \"#ffcf00,#3178c6\" \"pnpm dev:build\" \"pnpm dev:types\" --names build,types",
+    "dev:build": "node build.js --watch",
+    "dev:types": "tsc --watch --preserveWatchOutput",
+    "es2022-check": "pnpm build:with-deps && es-check es2022 \"dist/index.js\" --checkFeatures --module --noCache --verbose"
+  },
+  "devDependencies": {
+    "es-check": "^9.6.1",
+    "esbuild": "^0.27.3",
+    "esbuild-node-externals": "^1.20.1",
+    "hono": "^4.12.15",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "hono": "^4.0.0"
+  },
+  "dependencies": {
+    "@inertiajs/core": "workspace:*",
+    "es-toolkit": "^1.45.1",
+    "laravel-precognition": "^2.0.0"
+  }
+}

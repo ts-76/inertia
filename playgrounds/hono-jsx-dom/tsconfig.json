@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noImplicitThis": false,
+    "skipLibCheck": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx/dom",
+    "baseUrl": ".",
+    "paths": {
+      "@inertiajs/hono-jsx-dom": ["../../packages/hono-jsx-dom/src/index.ts"],
+      "@inertiajs/core": ["../../packages/core/src/index.ts"]
+    },
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}
